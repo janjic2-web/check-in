@@ -1,18 +1,19 @@
 <?php
 
-test('registration screen is disabled', function () {
+test('registration screen can be rendered', function () {
     $response = $this->get('/register');
-    $response->assertStatus(200); // ili assertRedirect('/login') ako tako hendluješ
+
+    $response->assertStatus(200);
 });
 
-test('posting to register is disabled', function () {
+test('new users can register', function () {
     $response = $this->post('/register', [
-        'name' => 'Test',
+        'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);
 
-    // Očekuj 405 (Method Not Allowed) jer je POST onemogućen
-    $response->assertStatus(405);
+    $this->assertAuthenticated();
+    $response->assertRedirect(route('dashboard', absolute: false));
 });
