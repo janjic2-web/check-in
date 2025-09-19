@@ -19,10 +19,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        // Dozvoljeno samo za kreiranje admin naloga
-        return view('auth.register', [
-            'allowed_roles' => ['admin', 'company_admin']
-        ]);
+        // Prikazuje formu bez izbora role
+        return view('auth.register');
     }
 
     /**
@@ -36,19 +34,14 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:admin,company_admin'],
         ]);
 
-        // Ograniči registraciju na admin ili company_admin
-        if (!in_array($request->role, ['admin', 'company_admin'])) {
-            abort(403, 'Registracija dozvoljena samo za administratora kompanije.');
-        }
-
+        // Automatski dodeli rolu 'company_admin'
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'role' => 'company_admin',
         ]);
 
         event(new Registered($user));
