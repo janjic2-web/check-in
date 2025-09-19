@@ -39,7 +39,7 @@ class RegisteredUserController extends Controller
         // Automatski dodeli rolu 'company_admin'
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => strtolower(trim($request->email)),
             'password' => Hash::make($request->password),
             'role' => 'company_admin',
         ]);

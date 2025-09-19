@@ -28,6 +28,19 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+        if ($user->role === 'admin') {
+            return redirect()->intended(route('admin.dashboard'));
+        } elseif ($user->role === 'facility_admin') {
+            return redirect()->intended(route('facility.dashboard'));
+        } elseif ($user->role === 'employee') {
+            // Employee nema web panel, možeš dodati poruku ili redirect na home
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect('/')->withErrors(['email' => 'Employee korisnici nemaju pristup web panelu.']);
+        }
+        // Fallback na dashboard za ostale role
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

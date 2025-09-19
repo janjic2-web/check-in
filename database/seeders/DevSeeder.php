@@ -40,27 +40,64 @@ class DevSeeder extends Seeder
         // -------------------------------------------
         // 1) Kreiraj test kompaniju
         // -------------------------------------------
-        $company = Company::create([
-            'display_name'            => 'Test Company',
-            'legal_name'              => 'Test Company LLC',
-            'vat_pib'                 => 'RS12345678',
-            'address'                 => 'Bulevar Oslobođenja 1',
-            'city'                    => 'Novi Sad',
-            'zip'                     => '21000',
-            'country'                 => 'RS',
-            'timezone'                => 'Europe/Belgrade',
-            'language'                => 'en',
-            'status'                  => 'active',          // active|suspended|expired
-            'expires_at'              => null,
-            'allow_outside'           => true,
-            'default_radius_m'        => 150,
-            'anti_spam_min_interval'  => 2,
-            'offline_retention_hours' => 72,
-            'min_inout_gap_min'       => 0,
-            'ble_min_rssi'            => -80,
-            // QR HMAC tajna (32B random, base64url)
-            'qr_secret'               => self::randomBase64Url(32),
-        ]);
+            $company = Company::create([
+                'display_name' => 'Test Kompanija',
+                'legal_name' => 'Test Kompanija DOO',
+                'vat_pib' => '12345678',
+                'address' => 'Test Adresa 1',
+                'city' => 'Beograd',
+                'zip' => '11000',
+                'country' => 'RS',
+                'timezone' => 'Europe/Belgrade',
+                'language' => 'sr',
+                'status' => 'active',
+            ]);
+
+            $facility = Facility::create([
+                'company_id' => $company->id,
+                'name' => 'Test Facility',
+                'lat' => 44.7866,
+                'lng' => 20.4489,
+                'default_radius_m' => 150,
+                'outside_override' => 'inherit',
+                'active' => true,
+                'status' => 'active',
+                'address' => 'Test Facility Adresa',
+                'zip' => '11000',
+            ]);
+
+            $adminUser = User::create([
+                'company_id' => $company->id,
+                'username' => 'admin1',
+                'email' => strtolower(trim('admin@company.com')),
+                'password' => bcrypt('12345678'),
+                'name' => 'Admin',
+                'surname' => 'Company',
+                'role' => 'company_admin',
+                'status' => 'active',
+            ]);
+
+            $facilityAdminUser = User::create([
+                'company_id' => $company->id,
+                'username' => 'facadmin1',
+                'email' => strtolower(trim('facadmin@company.com')),
+                'password' => bcrypt('12345678'),
+                'name' => 'Facility',
+                'surname' => 'Admin',
+                'role' => 'facility_admin',
+                'status' => 'active',
+            ]);
+
+            $employeeUser = User::create([
+                'company_id' => $company->id,
+                'username' => 'user1',
+                'email' => strtolower(trim('user@company.com')),
+                'password' => bcrypt('12345678'),
+                'name' => 'User',
+                'surname' => 'Employee',
+                'role' => 'employee',
+                'status' => 'active',
+            ]);
 
         // -------------------------------------------
         // 2) Test API ključ (superadmin) — x-api-key
@@ -130,7 +167,7 @@ class DevSeeder extends Seeder
         $facilityAdmin = User::create([
             'company_id'  => $company->id,
             'username'    => 'facility',
-            'email'       => 'facility@test.rs',
+            'email'       => strtolower(trim('facility@test.rs')),
             'password'    => 'tajna123',      // plain; mutator će hešovati
             'name'        => 'Facility',
             'surname'     => 'Admin',
@@ -154,7 +191,7 @@ class DevSeeder extends Seeder
         $companyAdmin = User::create([
             'company_id'  => $company->id,
             'username'    => 'companyadmin',
-            'email'       => 'admin@test.rs',
+            'email'       => strtolower(trim('admin@test.rs')),
             'password'    => 'tajna123',
             'name'        => 'Company',
             'surname'     => 'Admin',
@@ -165,7 +202,7 @@ class DevSeeder extends Seeder
         $employee = User::create([
             'company_id'  => $company->id,
             'username'    => 'emp1',
-            'email'       => 'emp@test.rs',
+            'email'       => strtolower(trim('emp@test.rs')),
             'password'    => 'tajna123',
             'name'        => 'Employee',
             'surname'     => 'Jedan',

@@ -30,6 +30,10 @@ class ProfileController extends Controller
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
+            // Slanje verifikacionog emaila ako email nije prazan i email_verified_at je null
+            if (!empty($request->user()->email) && $request->user()->email_verified_at === null) {
+                $request->user()->sendEmailVerificationNotification();
+            }
         }
 
         $request->user()->save();

@@ -62,6 +62,7 @@ class Kernel extends HttpKernel
      */
     protected $routeMiddleware = [
     'jsonthrottle' => \App\Http\Middleware\JsonThrottle::class,
+    'company.web' => \App\Http\Middleware\WebCompanyContextMiddleware::class,
         // Tenancy chain
         'company.api'    => \App\Http\Middleware\CompanyApiKeyMiddleware::class,
         'company.active' => \App\Http\Middleware\EnsureCompanyActive::class,
