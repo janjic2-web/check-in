@@ -2,43 +2,69 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
+use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+    // >>> PAZI: ovo sme da postoji samo jednom <<<
+    protected $model = User::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            // multi-tenant veza (zahteva CompanyFactory)
+            'company_id' => Company::factory(),
+
+            // auth + identitet
+            'username'          => $this->faker->unique()->userName(),
+            'email'             => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            // unosi se plain; pretpostavka: u User modelu imaš mutator koji hešuje
+            'password'          => 'password',
+            'name'              => $this->faker->firstName(),
+            'surname'           => $this->faker->lastName(),
+            'role'              => 'employee', // 'admin' | 'facility_admin' | 'employee'
+            'phone'             => $this->faker->optional()->e164PhoneNumber(),
+            'employee_id'       => $this->faker->optional()->bothify('EMP-####'),
+            'status'            => 'active',
+
+            // KPI defaulti
+            'required_checkins_day'   => 0,
+            'required_checkins_week'  => 0,
+            'required_checkins_month' => 0,
+            'required_checkins_year'  => 0,
+
             'remember_token' => Str::random(10),
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
+    // ——— Stanja (opciono, korisno u testovima) ———
+
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->state(fn () => ['email_verified_at' => null]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn () => ['role' => 'admin']);
+    }
+
+    public function facilityAdmin(): static
+    {
+        return $this->state(fn () => ['role' => 'facility_admin']);
+    }
+
+    public function employee(): static
+    {
+        return $this->state(fn () => ['role' => 'employee']);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn () => ['status' => 'suspended']);
     }
 }

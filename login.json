@@ -1,0 +1,12 @@
+# 1) Napravi JSON telo u fajlu
+Set-Content -Path body.json -Value '{"login":"admin1","password":"tajna123"}'
+
+# 2) Pošalji login
+curl.exe -X POST "http://127.0.0.1:8000/api/v1/auth/login" `
+  -H "Accept: application/json" `
+  -H "Content-Type: application/json" `
+  -H "x-api-key: TEST_API_KEY" `
+  --data "@body.json"
+<?php
+App\Models\User::where('username', 'admin1')->first();
+App\Models\User::where('email', 'admin@test.rs')->first();
